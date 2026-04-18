@@ -13,6 +13,7 @@
             --text: #333;
             --today-border: #FF5252;
             --past-day: #E6E6FA;
+            --modal-bg: rgba(255, 255, 255, 0.95);
         }
 
         /* --- SPLASH SCREEN --- */
@@ -91,7 +92,8 @@
 
         .habit-container { border-radius: 15px; overflow: hidden; border: 1px solid #F0F0F0; margin-top: 5px; }
         .habit-header { background: #fff; padding: 12px; text-align: left; font-size: 16px; font-weight: 800; color: #444; border-bottom: 1px solid #F8F8F8; }
-        .habit-row { display: flex; align-items: stretch; border-bottom: 1px solid #F8F8F8; min-height: 55px; }
+        .habit-row { display: flex; align-items: stretch; border-bottom: 1px solid #F8F8F8; min-height: 55px; cursor: pointer; user-select: none; transition: transform 0.1s; }
+        .habit-row:active { transform: scale(0.98); }
         .habit-label { flex: 1; padding: 8px 15px; display: flex; align-items: center; justify-content: space-between; font-size: 14px; font-weight: 700; }
         
         .task-content { display: flex; align-items: baseline; gap: 8px; }
@@ -114,10 +116,55 @@
         .input-group input { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid #EEE; outline: none; font-size: 14px; }
         .input-group button { background: var(--primary); color: white; border: none; padding: 0 15px; border-radius: 10px; font-weight: bold; }
 
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
-        .modal-content { background: white; padding: 20px; border-radius: 15px; width: 85%; max-width: 400px; text-align: center; }
+        /* --- MODERN EDIT MODAL --- */
+        .modal { 
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.2); backdrop-filter: blur(4px); align-items: center; justify-content: center; 
+        }
+        .modal-content { 
+            background: var(--modal-bg); padding: 25px; border-radius: 20px; width: 85%; max-width: 350px; 
+            text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            animation: slideUp 0.3s ease-out;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-content h4 { margin: 0 0 15px 0; color: var(--primary); font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
+        .modal-input { 
+            width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #EEE; margin-bottom: 20px; 
+            outline: none; font-size: 15px; text-align: center; box-sizing: border-box; background: rgba(255,255,255,0.8);
+        }
+        .modal-btns { display: flex; gap: 10px; }
+        .modal-btns button { 
+            flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer; transition: 0.2s; 
+        }
+        .btn-confirm { background: var(--primary); color: white; }
+        .btn-cancel { background: #F5F5F5; color: #999; }
         
         .dev-sig { text-align: center; font-size: 10px; color: #E6E6FA; opacity: 0.6; margin-top: 15px; margin-bottom: 20px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* --- PERFORMANCE HISTORY STYLES & ANIMATION --- */
+        .history-container { 
+            max-height: 0; overflow: hidden; background: white; border-radius: 15px; border: 1px solid transparent; 
+            margin-top: 0; padding: 0 12px; transition: max-height 0.4s ease-out, padding 0.4s ease, margin-top 0.4s ease, border 0.2s ease; opacity: 0;
+        }
+        .history-container.open { max-height: 1000px; padding: 12px; margin-top: 5px; border: 1px solid #F0F0F0; opacity: 1; }
+        .history-title { font-size: 10px; font-weight: 800; color: #AAA; text-align: left; margin-bottom: 10px; text-transform: uppercase; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #F9F9F9; }
+        .history-item:last-child { border-bottom: none; }
+        .history-task-name { font-size: 14px; font-weight: 600; color: #444; }
+        .history-stats { text-align: right; }
+        .history-perc { font-size: 14px; font-weight: 800; color: #B2AC88; }
+        .history-count { font-size: 9px; color: #AAA; }
+        
+        .history-toggle-btn { 
+            width: 100%; padding: 12px; margin-top: 10px; border-radius: 10px; border: 1px solid #EEE; 
+            background: #FFF; color: #AAA; font-size: 11px; font-weight: bold; cursor: pointer; 
+            text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.3s ease;
+        }
+        .history-toggle-btn.active { background: #FDFDFD; color: #FF5252; border-color: #FF5252; }
     </style>
 </head>
 <body>
@@ -188,20 +235,38 @@
         <textarea id="dayNote" style="width:100%; border:none; margin-top:5px; font-size:14px; outline:none; min-height: 50px;" placeholder="How was your day?" oninput="saveNote()"></textarea>
     </div>
 
-    <div style="display:flex; gap:8px; justify-content:center; margin-bottom: 5px;">
+    <div class="history-container" id="historyBox">
+        <div class="history-title" id="historyHeader">MONTHLY TASK PERFORMANCE (%)</div>
+        <div id="historyList"></div>
+    </div>
+
+    <div style="display:flex; gap:8px; justify-content:center; margin-bottom: 5px; margin-top: 10px;">
         <button onclick="openExport()" style="padding:8px 15px; border-radius:8px; border:1px solid #EEE; background:white; font-size:11px;">Backup</button>
         <button onclick="openRestore()" style="padding:8px 15px; border-radius:8px; border:1px solid #EEE; background:white; font-size:11px;">Restore</button>
     </div>
+
+    <button class="history-toggle-btn" id="toggleBtn" onclick="toggleHistory()">📊 View Performance History</button>
 
     <div class="dev-sig">Developed by pritam</div>
 </div>
 
 <div id="dataModal" class="modal"><div class="modal-content">
     <h4 id="modalTitle">Data</h4>
-    <textarea id="dataArea" style="width:100%; height:100px; margin-bottom:10px; padding:10px;"></textarea>
-    <button onclick="processData()" id="modalBtn" style="width:100%; padding:10px; background:var(--primary); color:white; border:none; border-radius:8px;">Action</button>
+    <textarea id="dataArea" style="width:100%; height:100px; margin-bottom:10px; padding:10px; border-radius:10px; border:1px solid #EEE;"></textarea>
+    <button onclick="processData()" id="modalBtn" style="width:100%; padding:10px; background:var(--primary); color:white; border:none; border-radius:8px; font-weight:bold;">Action</button>
     <p onclick="closeModal()" style="margin-top:10px; cursor:pointer; color:#AAA; font-size:11px;">Cancel</p>
 </div></div>
+
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <h4>Correction</h4>
+        <input type="text" id="editInput" class="modal-input">
+        <div class="modal-btns">
+            <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+            <button class="btn-confirm" id="saveEditBtn">Save</button>
+        </div>
+    </div>
+</div>
 
 <script>
     let allData = JSON.parse(localStorage.getItem('HabitPro_Daily_Mode')) || {};
@@ -215,6 +280,7 @@
     let selectedDay = realToday;
     let selectedMonth = "";
     let selectedYear = realYear;
+    let currentEditIdx = null;
     
     const monthsArr = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -263,6 +329,19 @@
         updateUI();
     }
 
+    function toggleHistory() {
+        const box = document.getElementById('historyBox');
+        const btn = document.getElementById('toggleBtn');
+        box.classList.toggle('open');
+        btn.classList.toggle('active');
+        if(box.classList.contains('open')) {
+            btn.innerText = "✖ Close History";
+            setTimeout(() => { box.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+        } else {
+            btn.innerText = "📊 View Performance History";
+        }
+    }
+
     function calculateAchievements() {
         const key = `${selectedYear}_${selectedMonth}_${selectedDay}`;
         const habits = allData[key] || [];
@@ -304,6 +383,49 @@
         mBadge.className = avgMonthly >= 60 ? 'medal-badge active' : 'medal-badge';
     }
 
+    function renderPerformanceHistory() {
+        const historyList = document.getElementById('historyList');
+        document.getElementById('historyHeader').innerText = `${selectedMonth} PERFORMANCE HISTORY`;
+        historyList.innerHTML = '';
+        
+        const daysInMonth = new Date(selectedYear, monthsArr.indexOf(selectedMonth) + 1, 0).getDate();
+        let taskStats = {}; 
+
+        for(let i = 1; i <= daysInMonth; i++) {
+            const key = `${selectedYear}_${selectedMonth}_${i}`;
+            const dayTasks = allData[key] || [];
+            dayTasks.forEach(task => {
+                const taskName = task.text.trim();
+                if(!taskStats[taskName]) {
+                    taskStats[taskName] = { total: 0, done: 0 };
+                }
+                taskStats[taskName].total++;
+                if(task.done) taskStats[taskName].done++;
+            });
+        }
+
+        const sortedTasks = Object.keys(taskStats).sort();
+        if(sortedTasks.length === 0) {
+            historyList.innerHTML = '<div style="font-size:11px; color:#AAA; text-align:center;">No tasks recorded this month.</div>';
+            return;
+        }
+
+        sortedTasks.forEach(taskName => {
+            const stats = taskStats[taskName];
+            const accuracy = Math.round((stats.done / stats.total) * 100);
+            const div = document.createElement('div');
+            div.className = 'history-item';
+            div.innerHTML = `
+                <div class="history-task-name">${taskName}</div>
+                <div class="history-stats">
+                    <div class="history-perc">${accuracy}% Accuracy</div>
+                    <div class="history-count">Completed ${stats.done}/${stats.total} times</div>
+                </div>
+            `;
+            historyList.appendChild(div);
+        });
+    }
+
     function updateUI() {
         document.querySelectorAll('.day-pill').forEach((p, idx) => {
             p.classList.toggle('active', (idx + 1) === selectedDay);
@@ -313,6 +435,7 @@
         loadNote();
         updateChart();
         calculateAchievements();
+        renderPerformanceHistory();
         localStorage.setItem('HabitPro_Daily_Mode', JSON.stringify(allData));
     }
 
@@ -324,35 +447,53 @@
         habits.forEach((h, idx) => {
             const row = document.createElement('div');
             row.className = `habit-row`;
+            row.ondblclick = () => openEditModal(idx);
             row.innerHTML = `
                 <div class="habit-label row-${idx % 5}">
                     <div class="task-content">
                         <span>${h.text}</span>
                         <span class="task-time">(${h.time || '--:--'})</span>
                     </div>
-                    <span class="delete-btn" onclick="deleteHabit(${idx})">×</span>
+                    <span class="delete-btn" onclick="event.stopPropagation(); deleteHabit(${idx})">×</span>
                 </div>
                 <div class="habit-check-area">
-                    <div class="custom-checkbox ${h.done ? 'checked' : ''}" onclick="toggleHabit(${idx})"></div>
+                    <div class="custom-checkbox ${h.done ? 'checked' : ''}" onclick="event.stopPropagation(); toggleHabit(${idx})"></div>
                 </div>`;
             list.appendChild(row);
         });
     }
 
+    // MODERN CUSTOM MODAL FUNCTIONS
+    function openEditModal(idx) {
+        const key = `${selectedYear}_${selectedMonth}_${selectedDay}`;
+        currentEditIdx = idx;
+        const currentText = allData[key][idx].text;
+        document.getElementById('editInput').value = currentText;
+        document.getElementById('editModal').style.display = 'flex';
+        
+        document.getElementById('saveEditBtn').onclick = () => {
+            const newText = document.getElementById('editInput').value;
+            if(newText.trim() !== "") {
+                allData[key][currentEditIdx].text = newText.trim();
+                updateUI();
+                closeEditModal();
+            }
+        };
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
+        currentEditIdx = null;
+    }
+
     function addHabit() {
         const input = document.getElementById('habitInput');
         if(!input.value.trim()) return;
-        
         const now = new Date();
         const timeStr = now.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase();
-        
         const key = `${selectedYear}_${selectedMonth}_${selectedDay}`;
         if(!allData[key]) allData[key] = [];
-        allData[key].push({ 
-            text: input.value, 
-            done: false,
-            time: timeStr
-        });
+        allData[key].push({ text: input.value, done: false, time: timeStr });
         input.value = '';
         updateUI();
     }
@@ -386,12 +527,7 @@
         myChart = new Chart(ctx, {
             type: 'line',
             data: { labels: [], datasets: [{ 
-                data: [], 
-                borderColor: '#7E9CC7', 
-                backgroundColor: 'rgba(126, 156, 199, 0.2)', 
-                fill: true, 
-                tension: 0.4,
-                pointRadius: 2
+                data: [], borderColor: '#7E9CC7', backgroundColor: 'rgba(126, 156, 199, 0.2)', fill: true, tension: 0.4, pointRadius: 2
             }] },
             options: { 
                 responsive: true, maintainAspectRatio: false, 
