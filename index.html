@@ -3,24 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Daily Task Master 2026</title>
+    <title>Shinobi Mission Log 2026</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Roboto:wght@400;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #FDFDFD;
-            --primary: #B2AC88;
-            --text: #333;
-            --today-border: #FF5252;
-            --past-day: #E6E6FA;
-            --modal-bg: rgba(255, 255, 255, 0.95);
+            --naruto-orange: #FF9100;
+            --naruto-blue: #1C244B;
+            --naruto-red: #BE0000;
+            --scroll-bg: #F2E3C9;
+            --text-dark: #2D2424;
+            --leaf-symbol: #000000;
         }
 
         /* --- SPLASH SCREEN --- */
         #splash-screen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: #FFFFFF;
+            background: var(--naruto-orange);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -30,183 +31,174 @@
         }
 
         .splash-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
+            text-align: center;
+            animation: spin 2s infinite linear;
         }
 
-        .splash-logo svg { width: 40px; height: 40px; }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
 
         .splash-text {
-            font-family: 'Inter', sans-serif;
-            font-size: 28px;
-            font-weight: 500;
-            color: #B2AC88;
-            letter-spacing: -0.5px;
-        }
-
-        .progress-container {
-            width: 140px;
-            height: 3px;
-            background: #F0F0F0;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            width: 0%;
-            height: 100%;
-            background: #B2AC88;
-            transition: width 1.5s ease-in-out;
+            font-family: 'Permanent Marker', cursive;
+            font-size: 32px;
+            color: var(--naruto-blue);
+            margin-top: 20px;
         }
 
         .fade-out { opacity: 0; pointer-events: none; }
 
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); margin: 0; padding: 8px; color: var(--text); }
-        .container { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
-        .card { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); text-align: center; }
-        .achievement-container { background: white; border-radius: 15px; padding: 12px; border: 1px solid #F0F0F0; margin-bottom: 5px; }
-        .ach-title { font-size: 13px; font-weight: 800; color: #B2AC88; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            background-color: var(--naruto-blue); 
+            margin: 0; 
+            padding: 10px; 
+            color: var(--text-dark);
+            background-image: radial-gradient(var(--naruto-orange) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .container { max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+        
+        /* --- MISSION CARDS --- */
+        .card { 
+            background: var(--scroll-bg); 
+            border-radius: 8px; 
+            padding: 15px; 
+            border: 2px solid var(--text-dark);
+            box-shadow: 6px 6px 0px var(--naruto-orange);
+        }
+
+        .achievement-container { 
+            background: #FFFFFF; 
+            border-radius: 8px; 
+            padding: 15px; 
+            border: 3px solid var(--text-dark);
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255, 145, 0, 0.05) 10px, rgba(255, 145, 0, 0.05) 20px);
+        }
+
+        .ach-title { 
+            font-family: 'Permanent Marker', cursive; 
+            font-size: 18px; 
+            color: var(--naruto-red);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
         .ach-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .ach-section { background: #fcfcfc; padding: 8px; border-radius: 10px; border: 1px solid #f8f8f8; }
-        .ach-label { font-size: 10px; font-weight: bold; color: #AAA; margin-bottom: 3px; text-transform: uppercase; }
-        .ach-value { font-size: 14px; font-weight: 800; color: #555; margin-bottom: 5px; }
-        .medal-badge { font-size: 11px; font-weight: bold; padding: 3px 6px; border-radius: 20px; background: #EEE; color: #999; display: inline-block; }
-        .medal-badge.active { background: #FFF9C4; color: #856404; border: 1px solid #FFEBA1; }
+        .ach-section { background: rgba(0,0,0,0.05); padding: 10px; border-radius: 4px; text-align: center; border: 1px dashed var(--text-dark); }
+        .ach-label { font-size: 10px; font-weight: 900; color: var(--naruto-blue); text-transform: uppercase; }
+        .ach-value { font-family: 'Permanent Marker', cursive; font-size: 24px; color: var(--text-dark); margin: 5px 0; }
         
-        .calendar-nav { display: flex; overflow-x: auto; gap: 6px; padding: 15px 0 5px 0; scrollbar-width: none; }
-        .calendar-nav::-webkit-scrollbar { display: none; }
+        .medal-badge { 
+            font-size: 10px; font-weight: bold; padding: 4px 8px; border-radius: 20px; background: #CCC; color: #666; 
+        }
+        .medal-badge.active { background: var(--naruto-red); color: white; border: 1px solid black; }
+
+        /* --- CALENDAR --- */
+        .calendar-nav { display: flex; overflow-x: auto; gap: 8px; padding: 10px 0; }
         .day-pill { 
-            min-width: 45px; padding: 8px 4px; background: #fff; border-radius: 10px; border: 1px solid #F0F0F0;
-            cursor: pointer; text-align: center; flex-shrink: 0; transition: 0.2s; position: relative;
+            min-width: 50px; padding: 10px 5px; background: var(--scroll-bg); border-radius: 4px; border: 2px solid var(--text-dark);
+            cursor: pointer; text-align: center; flex-shrink: 0; transition: 0.2s;
         }
-        .day-pill.is-today { border: 2px solid var(--today-border); }
-        .day-pill.is-today::after { 
-            content: 'TODAY'; position: absolute; top: -14px; left: 50%; transform: translateX(-50%); 
-            font-size: 7px; background: var(--today-border); color: white; padding: 1px 4px; border-radius: 3px; font-weight: bold;
-        }
-        .day-pill.active { background: #FFF9C4 !important; border-color: #FFEB3B; }
-        .day-pill.is-past { background: var(--past-day); }
-        .day-pill .date-num { font-size: 16px; font-weight: 800; display: block; }
+        .day-pill.active { background: var(--naruto-orange) !important; transform: translateY(-3px); }
+        .day-pill .date-num { font-weight: 900; font-size: 18px; display: block; }
 
-        .habit-container { border-radius: 15px; overflow: hidden; border: 1px solid #F0F0F0; margin-top: 5px; }
-        .habit-header { background: #fff; padding: 12px; text-align: left; font-size: 16px; font-weight: 800; color: #444; border-bottom: 1px solid #F8F8F8; }
-        .habit-row { display: flex; align-items: stretch; border-bottom: 1px solid #F8F8F8; min-height: 55px; cursor: pointer; user-select: none; transition: transform 0.1s; }
-        .habit-row:active { transform: scale(0.98); }
-        .habit-label { flex: 1; padding: 8px 15px; display: flex; align-items: center; justify-content: space-between; font-size: 14px; font-weight: 700; }
+        /* --- HABIT LIST --- */
+        .habit-container { border-radius: 8px; overflow: hidden; background: var(--scroll-bg); border: 2px solid var(--text-dark); }
+        .habit-header { 
+            background: var(--naruto-orange); 
+            padding: 12px; 
+            font-family: 'Permanent Marker', cursive; 
+            font-size: 18px; 
+            color: var(--naruto-blue);
+            border-bottom: 2px solid var(--text-dark);
+        }
         
-        .task-content { display: flex; align-items: baseline; gap: 8px; }
-        .task-time { font-size: 11px; opacity: 0.6; font-weight: 400; }
+        .habit-row { 
+            display: flex; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.1); 
+            min-height: 60px; 
+        }
+        .habit-label { flex: 1; padding: 10px 15px; font-weight: 900; }
+        .task-time { font-size: 10px; color: var(--naruto-red); font-weight: 400; }
 
-        .row-0 { background-color: #E8F5E9; color: #2E7D32; }
-        .row-1 { background-color: #F1F3E9; color: #556B2F; }
-        .row-2 { background-color: #E3F2FD; color: #1565C0; }
-        .row-3 { background-color: #F3E5F5; color: #6A1B9A; }
-        .row-4 { background-color: #FAF3E0; color: #8D6E63; }
+        .habit-check-area { width: 60px; display: flex; align-items: center; justify-content: center; }
+        .custom-checkbox { 
+            width: 30px; height: 30px; border: 3px solid var(--text-dark); border-radius: 50%; 
+            background: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .custom-checkbox.checked { background: var(--naruto-blue); border-color: var(--naruto-blue); }
+        .custom-checkbox.checked::after { content: '🍥'; color: white; font-size: 16px; }
 
-        .habit-check-area { width: 60px; display: flex; align-items: center; justify-content: center; background: #FFF9C4; border-left: 1px solid #F0F0F0; }
-        .custom-checkbox { width: 26px; height: 26px; border: 2px solid #CCC; border-radius: 6px; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .custom-checkbox.checked { background: #BA68C8; border-color: #BA68C8; color: white; }
-        .custom-checkbox.checked::after { content: '✓'; font-weight: bold; font-size: 16px; }
-        .delete-btn { font-size: 12px; opacity: 0.3; padding: 5px; cursor: pointer; }
+        .delete-btn { color: var(--naruto-red); font-weight: bold; font-size: 20px; cursor: pointer; padding: 0 10px; }
 
-        .chart-container { height: 180px; width: 100%; }
-        .input-group { display: flex; gap: 8px; margin: 5px 0; }
-        .input-group input { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid #EEE; outline: none; font-size: 14px; }
-        .input-group button { background: var(--primary); color: white; border: none; padding: 0 15px; border-radius: 10px; font-weight: bold; }
+        /* --- INPUTS --- */
+        .input-group { display: flex; gap: 8px; }
+        .input-group input { 
+            flex: 1; background: var(--scroll-bg); border: 2px solid var(--text-dark); border-radius: 4px; 
+            padding: 12px; color: var(--text-dark); font-weight: bold; outline: none;
+        }
+        .input-group button { 
+            background: var(--naruto-red); color: white; border: 2px solid var(--text-dark); padding: 0 20px; 
+            border-radius: 4px; font-family: 'Permanent Marker', cursive; cursor: pointer;
+        }
 
-        /* --- MODERN EDIT MODAL --- */
-        .modal { 
-            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.2); backdrop-filter: blur(4px); align-items: center; justify-content: center; 
+        #dayNote { 
+            background: var(--scroll-bg); border: 2px solid var(--text-dark); border-radius: 4px; 
+            padding: 10px; font-family: inherit; width: 100%; box-sizing: border-box;
         }
-        .modal-content { 
-            background: var(--modal-bg); padding: 25px; border-radius: 20px; width: 85%; max-width: 350px; 
-            text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            animation: slideUp 0.3s ease-out;
-            border: 1px solid rgba(255,255,255,0.5);
-        }
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .modal-content h4 { margin: 0 0 15px 0; color: var(--primary); font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
-        .modal-input { 
-            width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #EEE; margin-bottom: 20px; 
-            outline: none; font-size: 15px; text-align: center; box-sizing: border-box; background: rgba(255,255,255,0.8);
-        }
-        .modal-btns { display: flex; gap: 10px; }
-        .modal-btns button { 
-            flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer; transition: 0.2s; 
-        }
-        .btn-confirm { background: var(--primary); color: white; }
-        .btn-cancel { background: #F5F5F5; color: #999; }
-        
-        .dev-sig { text-align: center; font-size: 10px; color: #E6E6FA; opacity: 0.6; margin-top: 15px; margin-bottom: 20px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* --- PERFORMANCE HISTORY STYLES & ANIMATION --- */
-        .history-container { 
-            max-height: 0; overflow: hidden; background: white; border-radius: 15px; border: 1px solid transparent; 
-            margin-top: 0; padding: 0 12px; transition: max-height 0.4s ease-out, padding 0.4s ease, margin-top 0.4s ease, border 0.2s ease; opacity: 0;
-        }
-        .history-container.open { max-height: 1000px; padding: 12px; margin-top: 5px; border: 1px solid #F0F0F0; opacity: 1; }
-        .history-title { font-size: 10px; font-weight: 800; color: #AAA; text-align: left; margin-bottom: 10px; text-transform: uppercase; }
-        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #F9F9F9; }
-        .history-item:last-child { border-bottom: none; }
-        .history-task-name { font-size: 14px; font-weight: 600; color: #444; }
-        .history-stats { text-align: right; }
-        .history-perc { font-size: 14px; font-weight: 800; color: #B2AC88; }
-        .history-count { font-size: 9px; color: #AAA; }
-        
         .history-toggle-btn { 
-            width: 100%; padding: 12px; margin-top: 10px; border-radius: 10px; border: 1px solid #EEE; 
-            background: #FFF; color: #AAA; font-size: 11px; font-weight: bold; cursor: pointer; 
-            text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.3s ease;
+            width: 100%; padding: 15px; border-radius: 4px; border: 2px solid var(--text-dark);
+            background: var(--naruto-orange); color: var(--naruto-blue); font-family: 'Permanent Marker', cursive; 
+            font-size: 16px; cursor: pointer;
         }
-        .history-toggle-btn.active { background: #FDFDFD; color: #FF5252; border-color: #FF5252; }
+
+        .dev-sig { text-align: center; font-family: 'Permanent Marker', cursive; color: var(--naruto-orange); margin: 20px 0; letter-spacing: 2px; }
+
+        select { 
+            background: var(--scroll-bg); border: 2px solid var(--text-dark); font-weight: bold; border-radius: 4px;
+        }
     </style>
 </head>
 <body>
 
 <div id="splash-screen">
     <div class="splash-logo">
-        <svg viewBox="0 0 24 24" fill="#689F38">
-            <path d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,11 17,8 17,8Z" />
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="#1C244B">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" />
         </svg>
-        <span class="splash-text">Habit Master Pro</span>
     </div>
-    <div class="progress-container">
-        <div class="progress-bar" id="load-bar"></div>
-    </div>
+    <div class="splash-text">MISSION START!</div>
 </div>
 
 <div class="container">
-    <div style="display:flex; justify-content:space-between; align-items:center; padding: 5px 10px;">
-        <h3 style="margin:0; color:var(--primary); font-size: 17px;">Task Master</h3>
+    <div style="display:flex; justify-content:space-between; align-items:center; padding: 5px;">
+        <h3 style="margin:0; font-family:'Permanent Marker', cursive; color:white;">MISSION LOG</h3>
         <div style="display: flex; gap: 5px;">
-            <select id="monthSelect" onchange="initCalendar()" style="border:none; font-weight:bold; background:none; font-size: 13px; text-align: right;">
+            <select id="monthSelect" onchange="initCalendar()">
                 <option>January</option><option>February</option><option>March</option>
                 <option>April</option><option>May</option><option>June</option>
                 <option>July</option><option>August</option><option>September</option>
                 <option>October</option><option>November</option><option>December</option>
             </select>
-            <select id="yearSelect" onchange="initCalendar()" style="border:none; font-weight:bold; background:none; font-size: 13px;"></select>
+            <select id="yearSelect" onchange="initCalendar()"></select>
         </div>
     </div>
 
     <div class="achievement-container">
-        <div class="ach-title">🏆 ACHIEVEMENT BOX 🏆</div>
+        <div class="ach-title">Shinobi Rank</div>
         <div class="ach-grid">
             <div class="ach-section">
-                <div class="ach-label">Daily Progress</div>
+                <div class="ach-label">Chakra Level</div>
                 <div id="dailyPercentText" class="ach-value">0%</div>
-                <div id="dailyMedal" class="medal-badge">No Medal</div>
+                <div id="dailyMedal" class="medal-badge">ACADEMY</div>
             </div>
             <div class="ach-section">
-                <div class="ach-label">Month Progress</div>
+                <div class="ach-label">Village Contribution</div>
                 <div id="monthlyPercentText" class="ach-value">0%</div>
-                <div id="monthlyMedal" class="medal-badge">No Rank</div>
+                <div id="monthlyMedal" class="medal-badge">GENIN</div>
             </div>
         </div>
     </div>
@@ -214,61 +206,35 @@
     <div class="calendar-nav" id="datePicker"></div>
 
     <div class="card">
-        <div style="text-align:left; font-weight:bold; color:#AAA; font-size:10px; margin-bottom:8px;">MONTHLY ANALYSIS</div>
-        <div class="chart-container">
-            <canvas id="habitChart"></canvas>
-        </div>
+        <canvas id="habitChart" height="150"></canvas>
     </div>
 
     <div class="habit-container">
-        <div class="habit-header" id="listTitle">DAILY TASKS</div>
+        <div class="habit-header" id="listTitle">D-RANK MISSIONS</div>
         <div id="habitList"></div>
     </div>
 
     <div class="input-group">
-        <input type="text" id="habitInput" placeholder="New task...">
+        <input type="text" id="habitInput" placeholder="New mission description...">
         <button onclick="addHabit()">ADD</button>
     </div>
 
-    <div class="card" style="text-align:left; padding: 10px;">
-        <div style="font-weight:800; color:#AAA; font-size:10px;">DAILY JOURNAL</div>
-        <textarea id="dayNote" style="width:100%; border:none; margin-top:5px; font-size:14px; outline:none; min-height: 50px;" placeholder="How was your day?" oninput="saveNote()"></textarea>
+    <div class="card">
+        <div style="font-weight:900; margin-bottom:5px; color:var(--naruto-red);">SHINOBI JOURNAL</div>
+        <textarea id="dayNote" style="min-height: 60px;" placeholder="Record your training notes..." oninput="saveNote()"></textarea>
     </div>
 
-    <div class="history-container" id="historyBox">
-        <div class="history-title" id="historyHeader">MONTHLY TASK PERFORMANCE (%)</div>
-        <div id="historyList"></div>
+    <div id="historyBox" style="max-height:0; overflow:hidden; transition: 0.5s;">
+        <div class="card" id="historyList"></div>
     </div>
 
-    <div style="display:flex; gap:8px; justify-content:center; margin-bottom: 5px; margin-top: 10px;">
-        <button onclick="openExport()" style="padding:8px 15px; border-radius:8px; border:1px solid #EEE; background:white; font-size:11px;">Backup</button>
-        <button onclick="openRestore()" style="padding:8px 15px; border-radius:8px; border:1px solid #EEE; background:white; font-size:11px;">Restore</button>
-    </div>
+    <button class="history-toggle-btn" onclick="toggleHistory()">VIEW MISSION HISTORY</button>
 
-    <button class="history-toggle-btn" id="toggleBtn" onclick="toggleHistory()">📊 View Performance History</button>
-
-    <div class="dev-sig">Developed by pritam</div>
-</div>
-
-<div id="dataModal" class="modal"><div class="modal-content">
-    <h4 id="modalTitle">Data</h4>
-    <textarea id="dataArea" style="width:100%; height:100px; margin-bottom:10px; padding:10px; border-radius:10px; border:1px solid #EEE;"></textarea>
-    <button onclick="processData()" id="modalBtn" style="width:100%; padding:10px; background:var(--primary); color:white; border:none; border-radius:8px; font-weight:bold;">Action</button>
-    <p onclick="closeModal()" style="margin-top:10px; cursor:pointer; color:#AAA; font-size:11px;">Cancel</p>
-</div></div>
-
-<div id="editModal" class="modal">
-    <div class="modal-content">
-        <h4>Correction</h4>
-        <input type="text" id="editInput" class="modal-input">
-        <div class="modal-btns">
-            <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
-            <button class="btn-confirm" id="saveEditBtn">Save</button>
-        </div>
-    </div>
+    <div class="dev-sig">DATTEBAYO! • PRITAMXII</div>
 </div>
 
 <script>
+    // CORE LOGIC 
     let allData = JSON.parse(localStorage.getItem('HabitPro_Daily_Mode')) || {};
     let notesData = JSON.parse(localStorage.getItem('HabitPro_Notes_Daily')) || {};
     
@@ -280,7 +246,6 @@
     let selectedDay = realToday;
     let selectedMonth = "";
     let selectedYear = realYear;
-    let currentEditIdx = null;
     
     const monthsArr = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -296,7 +261,6 @@
             yearSelect.appendChild(opt);
         }
 
-        document.getElementById('load-bar').style.width = '100%';
         selectedMonth = monthsArr[realMonth];
         document.getElementById('monthSelect').value = selectedMonth;
         initChart();
@@ -304,7 +268,10 @@
 
         setTimeout(() => {
             document.getElementById('splash-screen').classList.add('fade-out');
-        }, 1800);
+        }, 1200);
+
+        // Update Check Trigger
+        setTimeout(checkForUpdates, 3000);
     };
 
     function initCalendar() {
@@ -316,126 +283,29 @@
         
         for (let i = 1; i <= daysInMonth; i++) {
             const dateObj = new Date(selectedYear, monthsArr.indexOf(selectedMonth), i);
-            const isToday = (i === realToday && selectedMonth === monthsArr[realMonth] && selectedYear === realYear);
-            const isPast = (dateObj < new Date(realYear, realMonth, realToday)); 
-            
             const pill = document.createElement('div');
-            pill.className = `day-pill ${i === selectedDay ? 'active' : ''} ${isToday ? 'is-today' : ''} ${isPast && !isToday ? 'is-past' : ''}`;
-            pill.innerHTML = `<span style="font-size:9px; color:#AAA;">${dayNames[dateObj.getDay()]}</span><span class="date-num">${i}</span>`;
+            pill.className = `day-pill ${i === selectedDay ? 'active' : ''}`;
+            pill.innerHTML = `<span style="font-size:9px; font-weight:900;">${dayNames[dateObj.getDay()]}</span><span class="date-num">${i}</span>`;
             pill.onclick = () => { selectedDay = i; updateUI(); };
             picker.appendChild(pill);
-            if(i === selectedDay) pill.scrollIntoView({ inline: 'center', behavior: 'smooth' });
         }
         updateUI();
     }
 
     function toggleHistory() {
         const box = document.getElementById('historyBox');
-        const btn = document.getElementById('toggleBtn');
-        box.classList.toggle('open');
-        btn.classList.toggle('active');
-        if(box.classList.contains('open')) {
-            btn.innerText = "✖ Close History";
-            setTimeout(() => { box.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
-        } else {
-            btn.innerText = "📊 View Performance History";
-        }
-    }
-
-    function calculateAchievements() {
-        const key = `${selectedYear}_${selectedMonth}_${selectedDay}`;
-        const habits = allData[key] || [];
-        const doneCount = habits.filter(h => h.done).length;
-        const dailyPercent = habits.length ? Math.round((doneCount / habits.length) * 100) : 0;
-        document.getElementById('dailyPercentText').innerText = dailyPercent + "%";
-        
-        let dailyMedal = "No Medal";
-        if(dailyPercent >= 90) dailyMedal = "🥇 GOLD";
-        else if(dailyPercent >= 80) dailyMedal = "🥈 SILVER";
-        else if(dailyPercent >= 60) dailyMedal = "🥉 COPPER";
-        
-        const dBadge = document.getElementById('dailyMedal');
-        dBadge.innerText = dailyMedal;
-        dBadge.className = dailyPercent >= 60 ? 'medal-badge active' : 'medal-badge';
-
-        const daysInMonth = new Date(selectedYear, monthsArr.indexOf(selectedMonth) + 1, 0).getDate();
-        let totalPercent = 0;
-        let trackedDays = 0;
-        for(let i=1; i<=daysInMonth; i++) {
-            const mKey = `${selectedYear}_${selectedMonth}_${i}`;
-            const mHabits = allData[mKey] || [];
-            if(mHabits.length > 0) {
-                const mDone = mHabits.filter(h => h.done).length;
-                totalPercent += (mDone / mHabits.length) * 100;
-                trackedDays++;
-            }
-        }
-        const avgMonthly = trackedDays ? Math.round(totalPercent / trackedDays) : 0;
-        document.getElementById('monthlyPercentText').innerText = avgMonthly + "%";
-        
-        let monthlyMedal = "No Rank";
-        if(avgMonthly >= 90) monthlyMedal = "👑 CHAMP";
-        else if(avgMonthly >= 80) monthlyMedal = "🥈 SILVER";
-        else if(avgMonthly >= 60) monthlyMedal = "🥉 COPPER";
-
-        const mBadge = document.getElementById('monthlyMedal');
-        mBadge.innerText = monthlyMedal;
-        mBadge.className = avgMonthly >= 60 ? 'medal-badge active' : 'medal-badge';
-    }
-
-    function renderPerformanceHistory() {
-        const historyList = document.getElementById('historyList');
-        document.getElementById('historyHeader').innerText = `${selectedMonth} PERFORMANCE HISTORY`;
-        historyList.innerHTML = '';
-        
-        const daysInMonth = new Date(selectedYear, monthsArr.indexOf(selectedMonth) + 1, 0).getDate();
-        let taskStats = {}; 
-
-        for(let i = 1; i <= daysInMonth; i++) {
-            const key = `${selectedYear}_${selectedMonth}_${i}`;
-            const dayTasks = allData[key] || [];
-            dayTasks.forEach(task => {
-                const taskName = task.text.trim();
-                if(!taskStats[taskName]) {
-                    taskStats[taskName] = { total: 0, done: 0 };
-                }
-                taskStats[taskName].total++;
-                if(task.done) taskStats[taskName].done++;
-            });
-        }
-
-        const sortedTasks = Object.keys(taskStats).sort();
-        if(sortedTasks.length === 0) {
-            historyList.innerHTML = '<div style="font-size:11px; color:#AAA; text-align:center;">No tasks recorded this month.</div>';
-            return;
-        }
-
-        sortedTasks.forEach(taskName => {
-            const stats = taskStats[taskName];
-            const accuracy = Math.round((stats.done / stats.total) * 100);
-            const div = document.createElement('div');
-            div.className = 'history-item';
-            div.innerHTML = `
-                <div class="history-task-name">${taskName}</div>
-                <div class="history-stats">
-                    <div class="history-perc">${accuracy}% Accuracy</div>
-                    <div class="history-count">Completed ${stats.done}/${stats.total} times</div>
-                </div>
-            `;
-            historyList.appendChild(div);
-        });
+        box.style.maxHeight = box.style.maxHeight === '0px' || !box.style.maxHeight ? '500px' : '0px';
     }
 
     function updateUI() {
         document.querySelectorAll('.day-pill').forEach((p, idx) => {
             p.classList.toggle('active', (idx + 1) === selectedDay);
         });
-        document.getElementById('listTitle').innerText = `${selectedDay} ${selectedMonth} ${selectedYear} - TASKS`;
+        document.getElementById('listTitle').innerText = `${selectedDay} ${selectedMonth.toUpperCase()} MISSIONS`;
         renderHabits();
         loadNote();
         updateChart();
         calculateAchievements();
-        renderPerformanceHistory();
         localStorage.setItem('HabitPro_Daily_Mode', JSON.stringify(allData));
     }
 
@@ -447,61 +317,36 @@
         habits.forEach((h, idx) => {
             const row = document.createElement('div');
             row.className = `habit-row`;
-            row.ondblclick = () => openEditModal(idx);
             row.innerHTML = `
-                <div class="habit-label row-${idx % 5}">
-                    <div class="task-content">
-                        <span>${h.text}</span>
-                        <span class="task-time">(${h.time || '--:--'})</span>
-                    </div>
-                    <span class="delete-btn" onclick="event.stopPropagation(); deleteHabit(${idx})">×</span>
+                <div class="habit-label">
+                    <span style="${h.done ? 'text-decoration:line-through; opacity:0.5;' : ''}">${h.text}</span>
+                    <div class="task-time">MISSION START: ${h.time || '--:--'}</div>
                 </div>
+                <span class="delete-btn" onclick="deleteHabit(${idx})">×</span>
                 <div class="habit-check-area">
-                    <div class="custom-checkbox ${h.done ? 'checked' : ''}" onclick="event.stopPropagation(); toggleHabit(${idx})"></div>
+                    <div class="custom-checkbox ${h.done ? 'checked' : ''}" onclick="toggleHabit(${idx})"></div>
                 </div>`;
             list.appendChild(row);
         });
-    }
-
-    // MODERN CUSTOM MODAL FUNCTIONS
-    function openEditModal(idx) {
-        const key = `${selectedYear}_${selectedMonth}_${selectedDay}`;
-        currentEditIdx = idx;
-        const currentText = allData[key][idx].text;
-        document.getElementById('editInput').value = currentText;
-        document.getElementById('editModal').style.display = 'flex';
-        
-        document.getElementById('saveEditBtn').onclick = () => {
-            const newText = document.getElementById('editInput').value;
-            if(newText.trim() !== "") {
-                allData[key][currentEditIdx].text = newText.trim();
-                updateUI();
-                closeEditModal();
-            }
-        };
-    }
-
-    function closeEditModal() {
-        document.getElementById('editModal').style.display = 'none';
-        currentEditIdx = null;
     }
 
     function addHabit() {
         const input = document.getElementById('habitInput');
         if(!input.value.trim()) return;
         const now = new Date();
-        const timeStr = now.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase();
+        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         const key = `${selectedYear}_${selectedMonth}_${selectedDay}`;
         if(!allData[key]) allData[key] = [];
         allData[key].push({ text: input.value, done: false, time: timeStr });
-        input.value = '';
-        updateUI();
+        input.value = ''; updateUI();
     }
 
     function toggleHabit(idx) {
         const key = `${selectedYear}_${selectedMonth}_${selectedDay}`;
         allData[key][idx].done = !allData[key][idx].done;
-        if(allData[key][idx].done) confetti({ particleCount: 30, spread: 50, origin: { y: 0.8 } });
+        if(allData[key][idx].done) {
+            confetti({ particleCount: 40, spread: 60, colors: ['#FF9100', '#1C244B'] });
+        }
         updateUI();
     }
 
@@ -509,6 +354,23 @@
         const key = `${selectedYear}_${selectedMonth}_${selectedDay}`;
         allData[key].splice(idx, 1);
         updateUI();
+    }
+
+    function calculateAchievements() {
+        const key = `${selectedYear}_${selectedMonth}_${selectedDay}`;
+        const habits = allData[key] || [];
+        const doneCount = habits.filter(h => h.done).length;
+        const dailyPercent = habits.length ? Math.round((doneCount / habits.length) * 100) : 0;
+        document.getElementById('dailyPercentText').innerText = dailyPercent + "%";
+        
+        let dailyMedal = "ACADEMY";
+        if(dailyPercent >= 90) dailyMedal = "HOKAGE";
+        else if(dailyPercent >= 70) dailyMedal = "JONIN";
+        else if(dailyPercent >= 40) dailyMedal = "CHUNIN";
+        
+        const dBadge = document.getElementById('dailyMedal');
+        dBadge.innerText = dailyMedal;
+        dBadge.className = dailyPercent >= 40 ? 'medal-badge active' : 'medal-badge';
     }
 
     function saveNote() {
@@ -527,15 +389,12 @@
         myChart = new Chart(ctx, {
             type: 'line',
             data: { labels: [], datasets: [{ 
-                data: [], borderColor: '#7E9CC7', backgroundColor: 'rgba(126, 156, 199, 0.2)', fill: true, tension: 0.4, pointRadius: 2
+                label: 'Chakra', data: [], borderColor: '#FF9100', backgroundColor: 'rgba(255, 145, 0, 0.2)', fill: true, tension: 0.4
             }] },
             options: { 
                 responsive: true, maintainAspectRatio: false, 
                 plugins: { legend: { display: false } },
-                scales: { 
-                    y: { beginAtZero: true, max: 100, ticks: { font: { size: 8 } } },
-                    x: { grid: { display: false }, ticks: { font: { size: 8 } } }
-                }
+                scales: { y: { beginAtZero: true, max: 100 } }
             }
         });
     }
@@ -554,49 +413,19 @@
         myChart.update();
     }
 
-    function openExport() {
-        const data = { allData, notesData };
-        document.getElementById('modalTitle').innerText = "Backup Code";
-        document.getElementById('dataArea').value = btoa(JSON.stringify(data));
-        document.getElementById('modalBtn').innerText = "Copy";
-        document.getElementById('dataModal').style.display = 'flex';
-    }
-    function openRestore() {
-        document.getElementById('modalTitle').innerText = "Restore Data";
-        document.getElementById('dataArea').value = "";
-        document.getElementById('modalBtn').innerText = "Restore";
-        document.getElementById('dataModal').style.display = 'flex';
-    }
-    function processData() {
-        if(document.getElementById('modalBtn').innerText === "Copy") {
-            navigator.clipboard.writeText(document.getElementById('dataArea').value);
-            alert("Copied!");
-        } else {
-            try {
-                const data = JSON.parse(atob(document.getElementById('dataArea').value));
-                allData = data.allData; notesData = data.notesData;
-                updateUI(); alert("Success!"); closeModal();
-            } catch(e) { alert("Invalid Code!"); }
-        }
-    }
-    function closeModal() { document.getElementById('dataModal').style.display = 'none'; }
-</script>
-<script>
-    /* Configuration */
-    const APP_VERSION = "1.0.0"; // Change this whenever you release a new APK
-    const UPDATE_CONFIG_URL = "https://raw.githubusercontent.com/pritamxii/task-boost/main/version.json";
+    // --- UPDATE SYSTEM LOGIC ---
+    const APP_VERSION = "1.0.0"; 
+    const UPDATE_CONFIG_URL = "https://raw.githubusercontent.com/pritamxii/DailyTask/main/version.json";
 
     async function checkForUpdates() {
         try {
             const response = await fetch(UPDATE_CONFIG_URL);
             const data = await response.json();
-
-            // If GitHub version is different from this App version
             if (data.version !== APP_VERSION) {
                 showUpdateModal(data.version, data.url);
             }
         } catch (err) {
-            console.log("Offline or version check failed.");
+            console.log("Update check failed.");
         }
     }
 
@@ -608,17 +437,14 @@
                 <div style="background: #fff; width: 85%; max-width: 320px; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
                     <div style="font-size: 50px; margin-bottom: 10px;">🚀</div>
                     <h2 style="margin: 0; color: #222; font-size: 22px;">Update Available!</h2>
-                    <p style="color: #666; font-size: 14px; margin: 15px 0;">A new version (${newVersion}) is ready with better features and fixes.</p>
-                    <button onclick="window.location.href='${downloadUrl}'" style="background: #007bff; color: white; border: none; padding: 12px 25px; border-radius: 50px; font-weight: 600; cursor: pointer; width: 100%; font-size: 16px;">Download Now</button>
-                    <p style="margin-top: 15px; font-size: 12px; color: #aaa; cursor: pointer;" onclick="document.getElementById('update-popup').remove()">Maybe Later</p>
+                    <p style="color: #666; font-size: 14px; margin: 15px 0;">New mission updates are ready (${newVersion}).</p>
+                    <button onclick="window.location.href='${downloadUrl}'" style="background: #FF9100; color: white; border: none; padding: 12px 25px; border-radius: 50px; font-weight: 600; cursor: pointer; width: 100%; font-size: 16px;">Update Now</button>
+                    <p style="margin-top: 15px; font-size: 12px; color: #aaa; cursor: pointer;" onclick="document.getElementById('update-popup').remove()">Not Now</p>
                 </div>
             </div>
         `;
         document.body.appendChild(modal);
     }
-
-    // Run check 3 seconds after app opens
-    window.onload = () => setTimeout(checkForUpdates, 3000);
 </script>
 </body>
 </html>
