@@ -582,15 +582,43 @@
     function closeModal() { document.getElementById('dataModal').style.display = 'none'; }
 </script>
 <script>
-const CURRENT_VERSION = "1.0.0";
+    /* Configuration */
+    const APP_VERSION = "1.0.0"; // Change this whenever you release a new APK
+    const UPDATE_CONFIG_URL = "https://raw.githubusercontent.com/pritamxii/task-boost/main/version.json";
 
-fetch("https://raw.githubusercontent.com/pritamxii/Grow-Test/main/version.json")
-.then(res => res.json())
-.then(data => {
-   if (data.version !== CURRENT_VERSION) {
-      alert("🚀 New update available!");
-   }
-});
+    async function checkForUpdates() {
+        try {
+            const response = await fetch(UPDATE_CONFIG_URL);
+            const data = await response.json();
+
+            // If GitHub version is different from this App version
+            if (data.version !== APP_VERSION) {
+                showUpdateModal(data.version, data.url);
+            }
+        } catch (err) {
+            console.log("Offline or version check failed.");
+        }
+    }
+
+    function showUpdateModal(newVersion, downloadUrl) {
+        const modal = document.createElement('div');
+        modal.id = "update-popup";
+        modal.innerHTML = `
+            <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; font-family: 'Segoe UI', sans-serif;">
+                <div style="background: #fff; width: 85%; max-width: 320px; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+                    <div style="font-size: 50px; margin-bottom: 10px;">🚀</div>
+                    <h2 style="margin: 0; color: #222; font-size: 22px;">Update Available!</h2>
+                    <p style="color: #666; font-size: 14px; margin: 15px 0;">A new version (${newVersion}) is ready with better features and fixes.</p>
+                    <button onclick="window.location.href='${downloadUrl}'" style="background: #007bff; color: white; border: none; padding: 12px 25px; border-radius: 50px; font-weight: 600; cursor: pointer; width: 100%; font-size: 16px;">Download Now</button>
+                    <p style="margin-top: 15px; font-size: 12px; color: #aaa; cursor: pointer;" onclick="document.getElementById('update-popup').remove()">Maybe Later</p>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    // Run check 3 seconds after app opens
+    window.onload = () => setTimeout(checkForUpdates, 3000);
 </script>
 </body>
 </html>
