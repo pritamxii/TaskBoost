@@ -13,9 +13,7 @@
             --text: #333;
             --today-border: #FF5252;
             --past-day: #E6E6FA;
-            --modal-bg: rgba(255, 255, 255, 0.98);
-            --danger: #FF7675;
-            --success: #55EFA1;
+            --modal-bg: rgba(255, 255, 255, 0.95);
         }
 
         /* --- SPLASH SCREEN --- */
@@ -33,20 +31,41 @@
 
         .splash-logo {
             display: flex;
-            align-items: center; gap: 10px; margin-bottom: 20px;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
         .splash-logo svg { width: 40px; height: 40px; }
-        .splash-text { font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 500; color: #B2AC88; letter-spacing: -0.5px; }
 
-        .progress-container { width: 140px; height: 3px; background: #F0F0F0; border-radius: 10px; overflow: hidden; }
-        .progress-bar { width: 0%; height: 100%; background: #B2AC88; transition: width 1.5s ease-in-out; }
+        .splash-text {
+            font-family: 'Inter', sans-serif;
+            font-size: 28px;
+            font-weight: 500;
+            color: #B2AC88;
+            letter-spacing: -0.5px;
+        }
+
+        .progress-container {
+            width: 140px;
+            height: 3px;
+            background: #F0F0F0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: #B2AC88;
+            transition: width 1.5s ease-in-out;
+        }
+
         .fade-out { opacity: 0; pointer-events: none; }
 
         body { font-family: 'Inter', sans-serif; background-color: var(--bg); margin: 0; padding: 8px; color: var(--text); }
         .container { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
         .card { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); text-align: center; }
-        
         .achievement-container { background: white; border-radius: 15px; padding: 12px; border: 1px solid #F0F0F0; margin-bottom: 5px; }
         .ach-title { font-size: 13px; font-weight: 800; color: #B2AC88; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .ach-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -58,9 +77,15 @@
         
         .calendar-nav { display: flex; overflow-x: auto; gap: 6px; padding: 15px 0 5px 0; scrollbar-width: none; }
         .calendar-nav::-webkit-scrollbar { display: none; }
-        .day-pill { min-width: 45px; padding: 8px 4px; background: #fff; border-radius: 10px; border: 1px solid #F0F0F0; cursor: pointer; text-align: center; flex-shrink: 0; transition: 0.2s; position: relative; }
+        .day-pill { 
+            min-width: 45px; padding: 8px 4px; background: #fff; border-radius: 10px; border: 1px solid #F0F0F0;
+            cursor: pointer; text-align: center; flex-shrink: 0; transition: 0.2s; position: relative;
+        }
         .day-pill.is-today { border: 2px solid var(--today-border); }
-        .day-pill.is-today::after { content: 'TODAY'; position: absolute; top: -14px; left: 50%; transform: translateX(-50%); font-size: 7px; background: var(--today-border); color: white; padding: 1px 4px; border-radius: 3px; font-weight: bold; }
+        .day-pill.is-today::after { 
+            content: 'TODAY'; position: absolute; top: -14px; left: 50%; transform: translateX(-50%); 
+            font-size: 7px; background: var(--today-border); color: white; padding: 1px 4px; border-radius: 3px; font-weight: bold;
+        }
         .day-pill.active { background: #FFF9C4 !important; border-color: #FFEB3B; }
         .day-pill.is-past { background: var(--past-day); }
         .day-pill .date-num { font-size: 16px; font-weight: 800; display: block; }
@@ -94,53 +119,58 @@
         #ptsInput { width: 60px; flex: none; text-align: center; }
         .input-group button { background: var(--primary); color: white; border: none; padding: 0 15px; border-radius: 10px; font-weight: bold; }
 
-        /* --- UPDATED MODAL STYLES --- */
+        /* --- MODERN EDIT MODAL --- */
         .modal { 
             display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); align-items: center; justify-content: center; 
+            background: rgba(0,0,0,0.2); backdrop-filter: blur(4px); align-items: center; justify-content: center; 
         }
         .modal-content { 
-            background: var(--modal-bg); padding: 25px; border-radius: 25px; width: 85%; max-width: 350px; 
-            text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.15); animation: zoomIn 0.3s ease-out;
+            background: var(--modal-bg); padding: 25px; border-radius: 20px; width: 85%; max-width: 350px; 
+            text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            animation: slideUp 0.3s ease-out;
+            border: 1px solid rgba(255,255,255,0.5);
         }
-        @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        
-        .modal-content h4 { margin: 0 0 15px 0; color: var(--primary); font-size: 17px; font-weight: 800; text-transform: uppercase; }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-content h4 { margin: 0 0 15px 0; color: var(--primary); font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
         .modal-input { 
-            width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #F0F0F0; margin-bottom: 15px; 
-            outline: none; font-size: 15px; text-align: center; box-sizing: border-box; background: #FAFAFA;
+            width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #EEE; margin-bottom: 10px; 
+            outline: none; font-size: 15px; text-align: center; box-sizing: border-box; background: rgba(255,255,255,0.8);
         }
         .modal-btns { display: flex; gap: 10px; }
-        .modal-btns button { flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer; transition: 0.2s; }
+        .modal-btns button { 
+            flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer; transition: 0.2s; 
+        }
         .btn-confirm { background: var(--primary); color: white; }
         .btn-cancel { background: #F5F5F5; color: #999; }
-        .btn-danger { background: var(--danger); color: white; }
-
-        /* TOAST NOTIFICATION */
-        .toast {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            background: #333; color: white; padding: 10px 20px; border-radius: 50px;
-            font-size: 13px; font-weight: 600; z-index: 10001;
-            opacity: 0; transition: opacity 0.3s, bottom 0.3s; pointer-events: none;
-        }
-        .toast.show { opacity: 1; bottom: 50px; }
-
+        
         .dev-sig { text-align: center; font-size: 10px; color: #E6E6FA; opacity: 0.6; margin-top: 15px; margin-bottom: 20px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
 
-        .history-container { max-height: 0; overflow: hidden; background: white; border-radius: 15px; border: 1px solid transparent; margin-top: 0; padding: 0 12px; transition: max-height 0.4s ease-out, padding 0.4s ease, opacity 0.2s; opacity: 0; }
+        /* --- PERFORMANCE HISTORY STYLES --- */
+        .history-container { 
+            max-height: 0; overflow: hidden; background: white; border-radius: 15px; border: 1px solid transparent; 
+            margin-top: 0; padding: 0 12px; transition: max-height 0.4s ease-out, padding 0.4s ease, margin-top 0.4s ease, border 0.2s ease; opacity: 0;
+        }
         .history-container.open { max-height: 1000px; padding: 12px; margin-top: 5px; border: 1px solid #F0F0F0; opacity: 1; }
+        .history-title { font-size: 10px; font-weight: 800; color: #AAA; text-align: left; margin-bottom: 10px; text-transform: uppercase; }
         .history-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #F9F9F9; }
+        .history-item:last-child { border-bottom: none; }
         .history-task-name { font-size: 14px; font-weight: 600; color: #444; }
         .history-stats { text-align: right; }
         .history-perc { font-size: 14px; font-weight: 800; color: #B2AC88; }
         .history-count { font-size: 9px; color: #AAA; }
         
-        .history-toggle-btn { width: 100%; padding: 12px; margin-top: 10px; border-radius: 10px; border: 1px solid #EEE; background: #FFF; color: #AAA; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; }
+        .history-toggle-btn { 
+            width: 100%; padding: 12px; margin-top: 10px; border-radius: 10px; border: 1px solid #EEE; 
+            background: #FFF; color: #AAA; font-size: 11px; font-weight: bold; cursor: pointer; 
+            text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.3s ease;
+        }
+        .history-toggle-btn.active { background: #FDFDFD; color: #FF5252; border-color: #FF5252; }
     </style>
 </head>
 <body>
-
-<div id="toast" class="toast">Message</div>
 
 <div id="splash-screen">
     <div class="splash-logo">
@@ -225,32 +255,23 @@
 </div>
 
 <div id="dataModal" class="modal"><div class="modal-content">
-    <h4 id="modalTitle">Data Management</h4>
-    <textarea id="dataArea" class="modal-input" style="height:120px; text-align: left; font-family: monospace; font-size: 10px;"></textarea>
-    <div class="modal-btns">
-        <button class="btn-cancel" onclick="closeModal('dataModal')">Close</button>
-        <button class="btn-confirm" onclick="processData()" id="modalBtn">Action</button>
-    </div>
+    <h4 id="modalTitle">Data</h4>
+    <textarea id="dataArea" style="width:100%; height:100px; margin-bottom:10px; padding:10px; border-radius:10px; border:1px solid #EEE;"></textarea>
+    <button onclick="processData()" id="modalBtn" style="width:100%; padding:10px; background:var(--primary); color:white; border:none; border-radius:8px; font-weight:bold;">Action</button>
+    <p onclick="closeModal()" style="margin-top:10px; cursor:pointer; color:#AAA; font-size:11px;">Cancel</p>
 </div></div>
 
-<div id="editModal" class="modal"><div class="modal-content">
-    <h4>Edit Task</h4>
-    <input type="text" id="editInput" class="modal-input" placeholder="Task name">
-    <input type="number" id="editPtsInput" class="modal-input" placeholder="Points" step="0.1" min="0" max="10">
-    <div class="modal-btns">
-        <button class="btn-cancel" onclick="closeModal('editModal')">Cancel</button>
-        <button class="btn-confirm" id="saveEditBtn">Save</button>
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <h4>Correction</h4>
+        <input type="text" id="editInput" class="modal-input" placeholder="Task name">
+        <input type="number" id="editPtsInput" class="modal-input" placeholder="Points" min="0" max="10" step="0.1">
+        <div class="modal-btns">
+            <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+            <button class="btn-confirm" id="saveEditBtn">Save</button>
+        </div>
     </div>
-</div></div>
-
-<div id="deleteModal" class="modal"><div class="modal-content">
-    <h4 style="color: var(--danger);">Remove Task?</h4>
-    <p style="font-size: 14px; color: #666; margin-bottom: 20px;">Are you sure you want to delete this task? This action cannot be undone.</p>
-    <div class="modal-btns">
-        <button class="btn-cancel" onclick="closeModal('deleteModal')">No, Keep</button>
-        <button class="btn-danger" id="confirmDeleteBtn">Yes, Delete</button>
-    </div>
-</div></div>
+</div>
 
 <script>
     let allData = JSON.parse(localStorage.getItem('HabitPro_Daily_Mode')) || {};
@@ -265,7 +286,6 @@
     let selectedMonth = "";
     let selectedYear = realYear;
     let currentEditIdx = null;
-    let currentDeleteIdx = null;
     
     const monthsArr = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -275,24 +295,22 @@
         const yearSelect = document.getElementById('yearSelect');
         for(let y = realYear - 2; y <= realYear + 5; y++) {
             let opt = document.createElement('option');
-            opt.value = y; opt.innerHTML = y;
+            opt.value = y;
+            opt.innerHTML = y;
             if(y === realYear) opt.selected = true;
             yearSelect.appendChild(opt);
         }
+
         document.getElementById('load-bar').style.width = '100%';
         selectedMonth = monthsArr[realMonth];
         document.getElementById('monthSelect').value = selectedMonth;
         initChart();
         initCalendar();
-        setTimeout(() => { document.getElementById('splash-screen').classList.add('fade-out'); }, 1800);
-    };
 
-    function showToast(msg) {
-        const t = document.getElementById('toast');
-        t.innerText = msg;
-        t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 2500);
-    }
+        setTimeout(() => {
+            document.getElementById('splash-screen').classList.add('fade-out');
+        }, 1800);
+    };
 
     function initCalendar() {
         selectedMonth = document.getElementById('monthSelect').value;
@@ -305,6 +323,7 @@
             const dateObj = new Date(selectedYear, monthsArr.indexOf(selectedMonth), i);
             const isToday = (i === realToday && selectedMonth === monthsArr[realMonth] && selectedYear === realYear);
             const isPast = (dateObj < new Date(realYear, realMonth, realToday)); 
+            
             const pill = document.createElement('div');
             pill.className = `day-pill ${i === selectedDay ? 'active' : ''} ${isToday ? 'is-today' : ''} ${isPast && !isToday ? 'is-past' : ''}`;
             pill.innerHTML = `<span style="font-size:9px; color:#AAA;">${dayNames[dateObj.getDay()]}</span><span class="date-num">${i}</span>`;
@@ -322,14 +341,17 @@
         btn.classList.toggle('active');
         if(box.classList.contains('open')) {
             btn.innerText = "✖ Close History";
+            setTimeout(() => { box.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
         } else {
             btn.innerText = "📊 View Performance History";
         }
     }
 
+    // UPDATED: WEIGHTED CALCULATION supporting float
     function calculateDailyScore(habits) {
         if (!habits || habits.length === 0) return 0;
-        let totalPoints = 0; let earnedPoints = 0;
+        let totalPoints = 0;
+        let earnedPoints = 0;
         habits.forEach(h => {
             const pts = parseFloat(h.points) || 0;
             totalPoints += pts;
@@ -355,7 +377,8 @@
         dBadge.className = dailyPercent >= 60 ? 'medal-badge active' : 'medal-badge';
 
         const daysInMonth = new Date(selectedYear, monthsArr.indexOf(selectedMonth) + 1, 0).getDate();
-        let totalScoreSum = 0; let trackedDays = 0;
+        let totalScoreSum = 0;
+        let trackedDays = 0;
         for(let i=1; i<=daysInMonth; i++) {
             const mKey = `${selectedYear}_${selectedMonth}_${i}`;
             const mHabits = allData[mKey] || [];
@@ -381,6 +404,7 @@
         const historyList = document.getElementById('historyList');
         document.getElementById('historyHeader').innerText = `${selectedMonth} PERFORMANCE HISTORY`;
         historyList.innerHTML = '';
+        
         const daysInMonth = new Date(selectedYear, monthsArr.indexOf(selectedMonth) + 1, 0).getDate();
         let taskStats = {}; 
 
@@ -389,7 +413,9 @@
             const dayTasks = allData[key] || [];
             dayTasks.forEach(task => {
                 const taskName = task.text.trim();
-                if(!taskStats[taskName]) taskStats[taskName] = { total: 0, done: 0 };
+                if(!taskStats[taskName]) {
+                    taskStats[taskName] = { total: 0, done: 0 };
+                }
                 taskStats[taskName].total++;
                 if(task.done) taskStats[taskName].done++;
             });
@@ -422,7 +448,11 @@
             p.classList.toggle('active', (idx + 1) === selectedDay);
         });
         document.getElementById('listTitle').innerText = `${selectedDay} ${selectedMonth} ${selectedYear} - TASKS`;
-        renderHabits(); loadNote(); updateChart(); calculateAchievements(); renderPerformanceHistory();
+        renderHabits();
+        loadNote();
+        updateChart();
+        calculateAchievements();
+        renderPerformanceHistory();
         localStorage.setItem('HabitPro_Daily_Mode', JSON.stringify(allData));
     }
 
@@ -444,7 +474,7 @@
                            <span class="task-time">at ${h.time || '--:--'}</span>
                         </div>
                     </div>
-                    <span class="delete-btn" onclick="event.stopPropagation(); openDeleteConfirm(${idx})">×</span>
+                    <span class="delete-btn" onclick="event.stopPropagation(); deleteHabit(${idx})">×</span>
                 </div>
                 <div class="habit-check-area">
                     <div class="custom-checkbox ${h.done ? 'checked' : ''}" onclick="event.stopPropagation(); toggleHabit(${idx})"></div>
@@ -460,46 +490,56 @@
         document.getElementById('editInput').value = task.text;
         document.getElementById('editPtsInput').value = task.points || 1;
         document.getElementById('editModal').style.display = 'flex';
+        
         document.getElementById('saveEditBtn').onclick = () => {
             const newText = document.getElementById('editInput').value;
             const newPts = document.getElementById('editPtsInput').value;
             if(newText.trim() !== "") {
                 allData[key][currentEditIdx].text = newText.trim();
                 allData[key][currentEditIdx].points = parseFloat(newPts) || 0;
-                updateUI(); closeModal('editModal'); showToast("Task updated!");
+                updateUI();
+                closeEditModal();
             }
         };
     }
 
-    function openDeleteConfirm(idx) {
-        currentDeleteIdx = idx;
-        document.getElementById('deleteModal').style.display = 'flex';
-        document.getElementById('confirmDeleteBtn').onclick = () => {
-            const key = `${selectedYear}_${selectedMonth}_${selectedDay}`;
-            allData[key].splice(currentDeleteIdx, 1);
-            updateUI(); closeModal('deleteModal'); showToast("Task removed");
-        };
+    function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
+        currentEditIdx = null;
     }
-
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
     function addHabit() {
         const input = document.getElementById('habitInput');
         const ptsInput = document.getElementById('ptsInput');
         if(!input.value.trim()) return;
+        
         const now = new Date();
         const timeStr = now.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase();
         const key = `${selectedYear}_${selectedMonth}_${selectedDay}`;
+        
         if(!allData[key]) allData[key] = [];
-        allData[key].push({ text: input.value, done: false, time: timeStr, points: parseFloat(ptsInput.value) || 0 });
-        input.value = ''; ptsInput.value = '1';
-        updateUI(); showToast("Task added!");
+        allData[key].push({ 
+            text: input.value, 
+            done: false, 
+            time: timeStr, 
+            points: parseFloat(ptsInput.value) || 0 
+        });
+        
+        input.value = '';
+        ptsInput.value = '1';
+        updateUI();
     }
 
     function toggleHabit(idx) {
         const key = `${selectedYear}_${selectedMonth}_${selectedDay}`;
         allData[key][idx].done = !allData[key][idx].done;
         if(allData[key][idx].done) confetti({ particleCount: 30, spread: 50, origin: { y: 0.8 } });
+        updateUI();
+    }
+
+    function deleteHabit(idx) {
+        const key = `${selectedYear}_${selectedMonth}_${selectedDay}`;
+        allData[key].splice(idx, 1);
         updateUI();
     }
 
@@ -518,8 +558,17 @@
         const ctx = document.getElementById('habitChart').getContext('2d');
         myChart = new Chart(ctx, {
             type: 'line',
-            data: { labels: [], datasets: [{ data: [], borderColor: '#7E9CC7', backgroundColor: 'rgba(126, 156, 199, 0.2)', fill: true, tension: 0.4, pointRadius: 2 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100, ticks: { font: { size: 8 } } }, x: { grid: { display: false }, ticks: { font: { size: 8 } } } } }
+            data: { labels: [], datasets: [{ 
+                data: [], borderColor: '#7E9CC7', backgroundColor: 'rgba(126, 156, 199, 0.2)', fill: true, tension: 0.4, pointRadius: 2
+            }] },
+            options: { 
+                responsive: true, maintainAspectRatio: false, 
+                plugins: { legend: { display: false } },
+                scales: { 
+                    y: { beginAtZero: true, max: 100, ticks: { font: { size: 8 } } },
+                    x: { grid: { display: false }, ticks: { font: { size: 8 } } }
+                }
+            }
         });
     }
 
@@ -531,7 +580,9 @@
             const habits = allData[`${selectedYear}_${selectedMonth}_${i}`] || [];
             scores.push(calculateDailyScore(habits));
         }
-        myChart.data.labels = labels; myChart.data.datasets[0].data = scores; myChart.update();
+        myChart.data.labels = labels;
+        myChart.data.datasets[0].data = scores;
+        myChart.update();
     }
 
     function openExport() {
@@ -541,27 +592,25 @@
         document.getElementById('modalBtn').innerText = "Copy";
         document.getElementById('dataModal').style.display = 'flex';
     }
-
     function openRestore() {
         document.getElementById('modalTitle').innerText = "Restore Data";
         document.getElementById('dataArea').value = "";
         document.getElementById('modalBtn').innerText = "Restore";
         document.getElementById('dataModal').style.display = 'flex';
     }
-
     function processData() {
         if(document.getElementById('modalBtn').innerText === "Copy") {
             navigator.clipboard.writeText(document.getElementById('dataArea').value);
-            showToast("Backup code copied!");
-            closeModal('dataModal');
+            alert("Copied!");
         } else {
             try {
                 const data = JSON.parse(atob(document.getElementById('dataArea').value));
                 allData = data.allData; notesData = data.notesData;
-                updateUI(); showToast("Restore Success!"); closeModal('dataModal');
-            } catch(e) { showToast("Invalid Code!"); }
+                updateUI(); alert("Success!"); closeModal();
+            } catch(e) { alert("Invalid Code!"); }
         }
     }
+    function closeModal() { document.getElementById('dataModal').style.display = 'none'; }
 </script>
 </body>
 </html>
