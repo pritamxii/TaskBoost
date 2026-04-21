@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Daily Task Master 2026</title>
+    <title>Daily Task Master 2026 - Weighted</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
@@ -96,8 +96,10 @@
         .habit-row:active { transform: scale(0.98); }
         .habit-label { flex: 1; padding: 8px 15px; display: flex; align-items: center; justify-content: space-between; font-size: 14px; font-weight: 700; }
         
-        .task-content { display: flex; align-items: baseline; gap: 8px; }
-        .task-time { font-size: 11px; opacity: 0.6; font-weight: 400; }
+        .task-content { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+        .task-meta { display: flex; gap: 8px; align-items: center; }
+        .task-time { font-size: 10px; opacity: 0.6; font-weight: 400; }
+        .task-pts { font-size: 10px; background: rgba(0,0,0,0.05); padding: 1px 5px; border-radius: 4px; color: var(--primary); }
 
         .row-0 { background-color: #E8F5E9; color: #2E7D32; }
         .row-1 { background-color: #F1F3E9; color: #556B2F; }
@@ -112,8 +114,9 @@
         .delete-btn { font-size: 12px; opacity: 0.3; padding: 5px; cursor: pointer; }
 
         .chart-container { height: 180px; width: 100%; }
-        .input-group { display: flex; gap: 8px; margin: 5px 0; }
+        .input-group { display: flex; gap: 5px; margin: 5px 0; }
         .input-group input { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid #EEE; outline: none; font-size: 14px; }
+        #ptsInput { width: 50px; flex: none; text-align: center; }
         .input-group button { background: var(--primary); color: white; border: none; padding: 0 15px; border-radius: 10px; font-weight: bold; }
 
         /* --- MODERN EDIT MODAL --- */
@@ -133,7 +136,7 @@
         }
         .modal-content h4 { margin: 0 0 15px 0; color: var(--primary); font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
         .modal-input { 
-            width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #EEE; margin-bottom: 20px; 
+            width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #EEE; margin-bottom: 10px; 
             outline: none; font-size: 15px; text-align: center; box-sizing: border-box; background: rgba(255,255,255,0.8);
         }
         .modal-btns { display: flex; gap: 10px; }
@@ -145,7 +148,7 @@
         
         .dev-sig { text-align: center; font-size: 10px; color: #E6E6FA; opacity: 0.6; margin-top: 15px; margin-bottom: 20px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* --- PERFORMANCE HISTORY STYLES & ANIMATION --- */
+        /* --- PERFORMANCE HISTORY STYLES --- */
         .history-container { 
             max-height: 0; overflow: hidden; background: white; border-radius: 15px; border: 1px solid transparent; 
             margin-top: 0; padding: 0 12px; transition: max-height 0.4s ease-out, padding 0.4s ease, margin-top 0.4s ease, border 0.2s ease; opacity: 0;
@@ -199,7 +202,7 @@
         <div class="ach-title">🏆 ACHIEVEMENT BOX 🏆</div>
         <div class="ach-grid">
             <div class="ach-section">
-                <div class="ach-label">Daily Progress</div>
+                <div class="ach-label">Weighted Progress</div>
                 <div id="dailyPercentText" class="ach-value">0%</div>
                 <div id="dailyMedal" class="medal-badge">No Medal</div>
             </div>
@@ -214,7 +217,7 @@
     <div class="calendar-nav" id="datePicker"></div>
 
     <div class="card">
-        <div style="text-align:left; font-weight:bold; color:#AAA; font-size:10px; margin-bottom:8px;">MONTHLY ANALYSIS</div>
+        <div style="text-align:left; font-weight:bold; color:#AAA; font-size:10px; margin-bottom:8px;">MONTHLY PERFORMANCE (%)</div>
         <div class="chart-container">
             <canvas id="habitChart"></canvas>
         </div>
@@ -227,6 +230,7 @@
 
     <div class="input-group">
         <input type="text" id="habitInput" placeholder="New task...">
+        <input type="number" id="ptsInput" placeholder="Pts" min="1" max="10" value="1">
         <button onclick="addHabit()">ADD</button>
     </div>
 
@@ -260,7 +264,8 @@
 <div id="editModal" class="modal">
     <div class="modal-content">
         <h4>Correction</h4>
-        <input type="text" id="editInput" class="modal-input">
+        <input type="text" id="editInput" class="modal-input" placeholder="Task name">
+        <input type="number" id="editPtsInput" class="modal-input" placeholder="Points" min="1" max="10">
         <div class="modal-btns">
             <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
             <button class="btn-confirm" id="saveEditBtn">Save</button>
@@ -342,11 +347,23 @@
         }
     }
 
+    // UPDATED: WEIGHTED CALCULATION
+    function calculateDailyScore(habits) {
+        if (!habits || habits.length === 0) return 0;
+        let totalPoints = 0;
+        let earnedPoints = 0;
+        habits.forEach(h => {
+            const pts = parseInt(h.points) || 1;
+            totalPoints += pts;
+            if (h.done) earnedPoints += pts;
+        });
+        return Math.round((earnedPoints / totalPoints) * 100);
+    }
+
     function calculateAchievements() {
         const key = `${selectedYear}_${selectedMonth}_${selectedDay}`;
         const habits = allData[key] || [];
-        const doneCount = habits.filter(h => h.done).length;
-        const dailyPercent = habits.length ? Math.round((doneCount / habits.length) * 100) : 0;
+        const dailyPercent = calculateDailyScore(habits);
         document.getElementById('dailyPercentText').innerText = dailyPercent + "%";
         
         let dailyMedal = "No Medal";
@@ -359,18 +376,17 @@
         dBadge.className = dailyPercent >= 60 ? 'medal-badge active' : 'medal-badge';
 
         const daysInMonth = new Date(selectedYear, monthsArr.indexOf(selectedMonth) + 1, 0).getDate();
-        let totalPercent = 0;
+        let totalScoreSum = 0;
         let trackedDays = 0;
         for(let i=1; i<=daysInMonth; i++) {
             const mKey = `${selectedYear}_${selectedMonth}_${i}`;
             const mHabits = allData[mKey] || [];
             if(mHabits.length > 0) {
-                const mDone = mHabits.filter(h => h.done).length;
-                totalPercent += (mDone / mHabits.length) * 100;
+                totalScoreSum += calculateDailyScore(mHabits);
                 trackedDays++;
             }
         }
-        const avgMonthly = trackedDays ? Math.round(totalPercent / trackedDays) : 0;
+        const avgMonthly = trackedDays ? Math.round(totalScoreSum / trackedDays) : 0;
         document.getElementById('monthlyPercentText').innerText = avgMonthly + "%";
         
         let monthlyMedal = "No Rank";
@@ -452,7 +468,10 @@
                 <div class="habit-label row-${idx % 5}">
                     <div class="task-content">
                         <span>${h.text}</span>
-                        <span class="task-time">(${h.time || '--:--'})</span>
+                        <div class="task-meta">
+                           <span class="task-pts">${h.points || 1} pts</span>
+                           <span class="task-time">at ${h.time || '--:--'}</span>
+                        </div>
                     </div>
                     <span class="delete-btn" onclick="event.stopPropagation(); deleteHabit(${idx})">×</span>
                 </div>
@@ -463,18 +482,20 @@
         });
     }
 
-    // MODERN CUSTOM MODAL FUNCTIONS
     function openEditModal(idx) {
         const key = `${selectedYear}_${selectedMonth}_${selectedDay}`;
         currentEditIdx = idx;
-        const currentText = allData[key][idx].text;
-        document.getElementById('editInput').value = currentText;
+        const task = allData[key][idx];
+        document.getElementById('editInput').value = task.text;
+        document.getElementById('editPtsInput').value = task.points || 1;
         document.getElementById('editModal').style.display = 'flex';
         
         document.getElementById('saveEditBtn').onclick = () => {
             const newText = document.getElementById('editInput').value;
+            const newPts = document.getElementById('editPtsInput').value;
             if(newText.trim() !== "") {
                 allData[key][currentEditIdx].text = newText.trim();
+                allData[key][currentEditIdx].points = parseInt(newPts) || 1;
                 updateUI();
                 closeEditModal();
             }
@@ -488,13 +509,23 @@
 
     function addHabit() {
         const input = document.getElementById('habitInput');
+        const ptsInput = document.getElementById('ptsInput');
         if(!input.value.trim()) return;
+        
         const now = new Date();
         const timeStr = now.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase();
         const key = `${selectedYear}_${selectedMonth}_${selectedDay}`;
+        
         if(!allData[key]) allData[key] = [];
-        allData[key].push({ text: input.value, done: false, time: timeStr });
+        allData[key].push({ 
+            text: input.value, 
+            done: false, 
+            time: timeStr, 
+            points: parseInt(ptsInput.value) || 1 
+        });
+        
         input.value = '';
+        ptsInput.value = '1';
         updateUI();
     }
 
@@ -546,8 +577,7 @@
         for(let i=1; i<=daysInMonth; i++) {
             labels.push(i);
             const habits = allData[`${selectedYear}_${selectedMonth}_${i}`] || [];
-            const done = habits.filter(h => h.done).length;
-            scores.push(habits.length ? Math.round((done/habits.length)*100) : 0);
+            scores.push(calculateDailyScore(habits));
         }
         myChart.data.labels = labels;
         myChart.data.datasets[0].data = scores;
