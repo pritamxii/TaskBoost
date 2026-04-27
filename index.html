@@ -119,7 +119,6 @@
         #ptsInput { width: 60px; flex: none; text-align: center; }
         .input-group button { background: var(--primary); color: white; border: none; padding: 0 15px; border-radius: 10px; font-weight: bold; }
 
-        /* --- MODERN EDIT MODAL --- */
         .modal { 
             display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; 
             background: rgba(0,0,0,0.2); backdrop-filter: blur(4px); align-items: center; justify-content: center; 
@@ -145,10 +144,35 @@
         }
         .btn-confirm { background: var(--primary); color: white; }
         .btn-cancel { background: #F5F5F5; color: #999; }
+
+        /* --- MODERN TOAST POPUP --- */
+        #custom-toast {
+            visibility: hidden;
+            min-width: 180px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 50px;
+            padding: 10px 20px;
+            position: fixed;
+            z-index: 10001;
+            left: 50%;
+            bottom: 50px;
+            transform: translateX(-50%);
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            transition: visibility 0s, opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+            opacity: 0;
+        }
+        #custom-toast.show {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(-10px);
+        }
         
         .dev-sig { text-align: center; font-size: 10px; color: #E6E6FA; opacity: 0.6; margin-top: 15px; margin-bottom: 20px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* --- PERFORMANCE HISTORY STYLES --- */
         .history-container { 
             max-height: 0; overflow: hidden; background: white; border-radius: 15px; border: 1px solid transparent; 
             margin-top: 0; padding: 0 12px; transition: max-height 0.4s ease-out, padding 0.4s ease, margin-top 0.4s ease, border 0.2s ease; opacity: 0;
@@ -183,6 +207,8 @@
         <div class="progress-bar" id="load-bar"></div>
     </div>
 </div>
+
+<div id="custom-toast">Message here</div>
 
 <div class="container">
     <div style="display:flex; justify-content:space-between; align-items:center; padding: 5px 10px;">
@@ -293,7 +319,7 @@
 
     window.onload = function() {
         const yearSelect = document.getElementById('yearSelect');
-        for(let y = realYear - 2; y <= realYear + 5; y++) {
+        for(let y = 2026; y <= 2032; y++) {
             let opt = document.createElement('option');
             opt.value = y;
             opt.innerHTML = y;
@@ -311,6 +337,14 @@
             document.getElementById('splash-screen').classList.add('fade-out');
         }, 1800);
     };
+
+    // --- TOAST FUNCTION ---
+    function showToast(msg) {
+        const toast = document.getElementById("custom-toast");
+        toast.innerText = msg;
+        toast.className = "show";
+        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2500);
+    }
 
     function initCalendar() {
         selectedMonth = document.getElementById('monthSelect').value;
@@ -347,7 +381,6 @@
         }
     }
 
-    // UPDATED: WEIGHTED CALCULATION supporting float
     function calculateDailyScore(habits) {
         if (!habits || habits.length === 0) return 0;
         let totalPoints = 0;
@@ -499,6 +532,7 @@
                 allData[key][currentEditIdx].points = parseFloat(newPts) || 0;
                 updateUI();
                 closeEditModal();
+                showToast("Updated!");
             }
         };
     }
@@ -528,12 +562,16 @@
         input.value = '';
         ptsInput.value = '1';
         updateUI();
+        showToast("Task Added!");
     }
 
     function toggleHabit(idx) {
         const key = `${selectedYear}_${selectedMonth}_${selectedDay}`;
         allData[key][idx].done = !allData[key][idx].done;
-        if(allData[key][idx].done) confetti({ particleCount: 30, spread: 50, origin: { y: 0.8 } });
+        if(allData[key][idx].done) {
+            confetti({ particleCount: 30, spread: 50, origin: { y: 0.8 } });
+            showToast("Well Done! 🎉");
+        }
         updateUI();
     }
 
@@ -541,6 +579,7 @@
         const key = `${selectedYear}_${selectedMonth}_${selectedDay}`;
         allData[key].splice(idx, 1);
         updateUI();
+        showToast("Task Removed");
     }
 
     function saveNote() {
@@ -601,13 +640,16 @@
     function processData() {
         if(document.getElementById('modalBtn').innerText === "Copy") {
             navigator.clipboard.writeText(document.getElementById('dataArea').value);
-            alert("Copied!");
+            showToast("Copied to Clipboard!");
+            closeModal();
         } else {
             try {
                 const data = JSON.parse(atob(document.getElementById('dataArea').value));
                 allData = data.allData; notesData = data.notesData;
-                updateUI(); alert("Success!"); closeModal();
-            } catch(e) { alert("Invalid Code!"); }
+                updateUI(); 
+                showToast("Data Restored!"); 
+                closeModal();
+            } catch(e) { showToast("Invalid Code!"); }
         }
     }
     function closeModal() { document.getElementById('dataModal').style.display = 'none'; }
